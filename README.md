@@ -51,6 +51,8 @@ O código está organizado em camadas:
     ├── integration/
     └── acceptance/
 ```
+---
+
 ## Requisitos
 
 - Docker
@@ -59,13 +61,17 @@ O código está organizado em camadas:
 
 ## Configuração do ambiente
 
-Abra o projeto no PyCharm e utilize a configuração disponível em:
+Abra o projeto na IDE e utilize a configuração disponível em:
 
 `.devcontainer/devcontainer.json`
 
 Crie ou inicie o Dev Container para acessar o ambiente de desenvolvimento.
 
 As dependências de desenvolvimento são instaladas automaticamente durante a criação do ambiente.
+
+O código-fonte é mantido no sistema hospedeiro e montado no container, no diretório /workspace.
+
+---
 
 ## Execução dos testes
 
@@ -81,6 +87,12 @@ Para verificar possíveis problemas no código:
 
 ```bash
 ruff check .
+```
+
+ou para verificar apenas os arquivos em `src` e `testes`
+
+```bash
+ruff check src tests
 ```
 
 Para verificar a formatação:

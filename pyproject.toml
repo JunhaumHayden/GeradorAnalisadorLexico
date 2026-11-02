@@ -5,9 +5,37 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "gal"
 version = "0.1.0"
-description = "Gerador de Analisadores Léxicos"
+description = "Framework para geração de analisadores léxicos a partir de expressões regulares."
+readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+
+authors = [
+    { name = "Carlos Hayden" },
+    { name = "Marina Rosa" },
+    { name = "Roberta Piskor" },
+]
+
+keywords = [
+    "analisador-lexico",
+    "compiladores",
+    "expressoes-regulares",
+    "automatos-finitos",
+    "teoria-dos-automatos",
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Compilers",
+]
+
+[project.urls]
+Homepage = "https://github.com/JunhaumHayden/GeradorAnalisadorLexico"
+Repository = "https://github.com/JunhaumHayden/GeradorAnalisadorLexico"
+Issues = "https://github.com/JunhaumHayden/GeradorAnalisadorLexico/issues"
 
 [project.optional-dependencies]
 dev = [

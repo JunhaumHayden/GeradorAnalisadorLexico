@@ -9,6 +9,7 @@
     ],
     "remoteUser": "developer",
     "workspaceFolder": "/workspace",
+    "postCreateCommand": "python -m pip install -e '.[dev]'",
     "customizations": {
         "jetbrains": {
             "backend": "PyCharm"
