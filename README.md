@@ -1,6 +1,28 @@
-# GAL — Gerador de Analisadores Léxicos
+#vGAL — Gerador de Analisadores Léxicos
 
-Framework para geração de analisadores léxicos a partir de definições de expressões regulares.
+Framework para geração de analisadores léxicos a partir de definições de expressões regulares, utilizando algoritmos de construção e manipulação de autômatos finitos.
+
+## Sobre o projeto
+
+O GAL é um projeto acadêmico desenvolvido com o objetivo de construir um framework capaz de gerar analisadores léxicos a partir de definições de expressões regulares.
+
+A proposta envolve a conversão de expressões regulares em autômatos finitos, a manipulação e otimização desses autômatos e a geração de estruturas utilizadas no reconhecimento de lexemas.
+
+## Funcionalidades previstas
+
+- Conversão de expressões regulares em autômatos finitos determinísticos (AFD).
+
+- Minimização de autômatos finitos.
+
+- União de autômatos por meio de transições ε.
+
+- Determinização de autômatos finitos não determinísticos (AFND).
+
+- Geração de tabelas de análise léxica.
+
+- Reconhecimento de lexemas e identificação de erros léxicos.
+
+O projeto encontra-se em desenvolvimento. As funcionalidades serão implementadas e integradas progressivamente.
 
 ## Tecnologias
 
@@ -10,18 +32,41 @@ Framework para geração de analisadores léxicos a partir de definições de ex
 - pytest
 - Ruff
 
+---
+
 ## Ambiente de desenvolvimento
 
 O projeto utiliza Docker Dev Containers para padronizar o ambiente de desenvolvimento.
 
-O código-fonte é mantido no sistema hospedeiro (Ubuntu) e montado no container.
+O código-fonte é mantido no sistema hospedeiro (Ubuntu) e montado no container, no diretório /workspace.
+
+
+### Configuração do ambiente
+
+Abra o projeto na IDE e utilize a configuração disponível em:
+
+`.devcontainer/devcontainer.json`
+
+Crie ou inicie o Dev Container para acessar o ambiente de desenvolvimento.
+
+As dependências de desenvolvimento são instaladas automaticamente durante a criação do ambiente.
+
+---
+
+## Requisitos
+
+- Docker
+- Docker Compose
+- PyCharm/VS Code com suporte a Dev Containers
+
+---
 
 ## Estrutura do projeto
 
 O código está organizado em camadas:
 
-- `domain`: representação dos conceitos fundamentais do domínio.
-- `algorithms`: implementação dos algoritmos de autômatos.
+- `domain`: representação dos conceitos fundamentais do domínio: estados, transições, autômatos, expressões regulares e tokens..
+- `algorithms`: implementação dos algoritmos de autômatos: conversão, minimização, união e determinização..
 - `application`: coordenação dos casos de uso.
 - `infrastructure`: operações de entrada e saída.
 - `presentation`: interface de interação com o usuário.
@@ -51,25 +96,77 @@ O código está organizado em camadas:
     ├── integration/
     └── acceptance/
 ```
----
 
-## Requisitos
+### Alguns exemplos de responsabilidades:
 
-- Docker
-- Docker Compose
-- PyCharm com suporte a Dev Containers
+> Os nomes são sugestões, mas a separação de responsabilidades é o aspecto fundamental.
 
-## Configuração do ambiente
+```plaintext
+domain/
+├── models/
+│   ├── automaton.py
+│   ├── state.py
+│   ├── transition.py
+│   └── lexical_table.py
+│
+├── algorithms/
+│   ├── regex_to_automaton.py
+│   ├── minimization.py
+│   ├── union.py
+│   └── determinization.py
+│
+├── application/
+│   ├── project/
+│   │   └── analyzer_generator.py
+│   │
+│   ├── execution/
+│   │   └── lexical_analyzer.py
+│   │
+│   └── results/
+│       └── operation_result.py
+│
+├── infrastructure/
+│   ├── readers/
+│   │   ├── definition_reader.py
+│   │   └── source_reader.py
+│   │
+│   └── writers/
+│       └── output_writer.py
+│
+└── presentation/
+    ├── cli/
+    └── tables/
+```
 
-Abra o projeto na IDE e utilize a configuração disponível em:
+`domain/` — Modelo do domínio
 
-`.devcontainer/devcontainer.json`
+##### Representa os conceitos fundamentais do projeto:
+- Estado de um autômato.
+- Transição.
+- Autômato finito.
+- Expressão regular.
+- Token.
 
-Crie ou inicie o Dev Container para acessar o ambiente de desenvolvimento.
+`algorithms/` — Algoritmos
 
-As dependências de desenvolvimento são instaladas automaticamente durante a criação do ambiente.
+##### Conterá os algoritmos exigidos no trabalho:
+- Conversão de ER para AFD.
+- Minimização de AFD.
+- União de autômatos por ε-transição.
+- Determinização de AFND.
 
-O código-fonte é mantido no sistema hospedeiro e montado no container, no diretório /workspace.
+`application/` — Casos de uso
+
+##### Coordena as operações do sistema. 
+Por exemplo, gerar um analisador léxico a partir de várias definições de tokens.
+
+`infrastructure/` — Entrada e saída
+
+##### Responsável por ler arquivos de definição, ler arquivos-fonte e gerar arquivos de resultado.
+
+`presentation/` — Interface
+
+##### Responsável pela interação com o usuário.
 
 ---
 
