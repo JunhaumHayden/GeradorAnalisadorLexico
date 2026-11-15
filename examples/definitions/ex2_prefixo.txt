@@ -1,0 +1,4 @@
+# Exemplo 2 com as ERs que reproduzem a saída do enunciado:
+# er1 = palavras que começam com a; er2 = palavras que começam com b.
+er1: a(a | b)*
+er2: b(a | b)*

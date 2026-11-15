@@ -1,0 +1,23 @@
+# Mini linguagem imperativa. Demonstra:
+#  - definições auxiliares (prefixo _) reutilizadas com {nome};
+#  - prioridade pela ordem: palavras reservadas antes de id;
+#  - maior casamento: "<=" e "3.14" são um token só.
+
+_letra: [a-zA-Z_]
+_digito: [0-9]
+
+if: if
+else: else
+while: while
+int: int
+id: {_letra}({_letra} | {_digito})*
+real: {_digito}+\.{_digito}+
+num: {_digito}+
+op_rel: < | > | <= | >= | == | !=
+atrib: =
+op_ar: \+ | - | \* | /
+abre_par: \(
+fecha_par: \)
+abre_chave: \{
+fecha_chave: \}
+ponto_virgula: ;

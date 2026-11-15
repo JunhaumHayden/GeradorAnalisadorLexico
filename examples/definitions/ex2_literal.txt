@@ -1,0 +1,5 @@
+# Exemplo 2 do enunciado, exatamente como escrito.
+# Atenção: as duas ERs aceitam as mesmas cadeias; o desempate vai para a
+# primeira definição (er1).
+er1: a?(a | b)+
+er2: b?(a | b)+
