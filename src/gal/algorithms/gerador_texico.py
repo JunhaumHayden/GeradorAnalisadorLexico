@@ -3,6 +3,9 @@ from arvore_binaria import NoArvore
 from collections import deque
 
 class GeradorLexico:
+    """
+
+    """
     def __init__(self, caminho_arquivo):
         self.caminho_arquivo = caminho_arquivo
         self.expressoes = {}
