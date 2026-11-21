@@ -222,6 +222,150 @@ class GeradorLexico:
         return estados_d, dtran, finais, simbolos_de_entrada
 
     #########################################################################
+    # 2.1) MINIMIZAÇÃO DE AUTÔMATOS FINITOS
+    #########################################################################
+
+    def _eliminar_estados_inalcancaveis(self, n, dtran, simbolos):
+        alcancaveis = {0}
+        fila = deque([0])
+
+        # BFS para identificação dos estados alcançáveis
+        while fila:
+            atual = fila.popleft()
+            for s in simbolos:
+                dest = dtran[atual].get(s)
+                if dest is not None and dest not in alcancaveis:
+                    alcancaveis.add(dest)
+                    fila.append(dest)
+
+        return [s for s in range(n) if s in alcancaveis]
+        
+    def _eliminar_estados_mortos(self, estados_validos, finais_set, dtran):
+        validos_set = set(estados_validos)
+        reverso = {s: [] for s in validos_set}
+
+        # transições reversas para facilitar a busca
+        for origem in validos_set:
+            for dest in dtran[origem].values():
+                if dest in reverso:
+                    reverso[dest].append(origem)
+
+        vivos = {f for f in finais_set if f in validos_set}
+        fila = deque(vivos)
+
+        # BFS para identificação dos estados vivos
+        while fila:
+            atual = fila.popleft()
+            for ant in reverso[atual]:
+                if ant not in vivos:
+                    vivos.add(ant)
+                    fila.append(ant)
+
+        return [s for s in estados_validos if s in vivos]
+        
+    def _construir_classes_equivalencia(self, estados_ativos, finais_set, dtran, simbolos):
+        ativos_set = set(estados_ativos)
+        SEM_DESTINO = -1
+
+        def prox(estado, sym):
+            dest = dtran[estado].get(sym)
+            return dest if dest in ativos_set else SEM_DESTINO
+
+        grupo_finais = [s for s in estados_ativos if s in finais_set]
+        grupo_nao_finais = [s for s in estados_ativos if s not in finais_set]
+
+        particoes = []
+        if grupo_finais:
+            particoes.append(grupo_finais)
+        if grupo_nao_finais:
+            particoes.append(grupo_nao_finais)
+
+        mudou = True
+        while mudou:
+            mudou = False
+            id_ce = {SEM_DESTINO: len(particoes)}
+            for idx_ce, ce in enumerate(particoes):
+                for s in ce:
+                    id_ce[s] = idx_ce
+
+            novas_particoes = []
+            for ce in particoes:
+                if len(ce) <= 1:
+                    novas_particoes.append(ce)
+                    continue
+
+                assinaturas = {}
+                for s in ce:
+                    chave = tuple(id_ce[prox(s, sym)] for sym in simbolos)
+                    assinaturas.setdefault(chave, []).append(s)
+
+                if len(assinaturas) > 1:
+                    mudou = True
+                novas_particoes.extend(assinaturas.values())
+
+            particoes = novas_particoes
+
+        return particoes
+        
+    def _construir_afd_minimo(self, particoes, estados, finais_set, dtran, simbolos):
+        idx_q0 = next((i for i, ce in enumerate(particoes) if 0 in ce), 0)
+        if idx_q0 != 0:
+            particoes[0], particoes[idx_q0] = particoes[idx_q0], particoes[0]
+
+        ce_de_estado = {}
+        for idx_ce, ce in enumerate(particoes):
+            for s in ce:
+                ce_de_estado[s] = idx_ce
+
+        novos_estados = [
+            sorted({pos for s in ce for pos in estados[s]})
+            for ce in particoes
+        ]
+
+        novo_dtran = []
+        for ce in particoes:
+            representante = ce[0]
+            trans = {}
+            for sym in simbolos:
+                dest = dtran[representante].get(sym)
+                if dest is not None and dest in ce_de_estado:
+                    trans[sym] = ce_de_estado[dest]
+            novo_dtran.append(trans)
+
+        novos_finais = sorted({
+            idx_ce for idx_ce, ce in enumerate(particoes)
+            if any(s in finais_set for s in ce)
+        })
+
+        return novos_estados, novo_dtran, novos_finais, simbolos
+        
+    def minimizar_afd(self, estados, dtran, finais, simbolos):
+        n = len(estados)
+        if n == 0:
+            return estados, dtran, finais, simbolos
+
+        finais_set = set(finais)
+
+        alcancaveis = self._eliminar_estados_inalcancaveis(n, dtran, simbolos)
+        estados_vivos = self._eliminar_estados_mortos(alcancaveis, finais_set, dtran)
+
+        if not estados_vivos:
+            return [], [], [], simbolos
+
+        particoes = self._construir_classes_equivalencia(
+            estados_vivos, finais_set, dtran, simbolos
+        )
+
+        return self._construir_afd_minimo(
+            particoes, estados, finais_set, dtran, simbolos
+        )
+
+    def minimizar_afds(self):
+        for nome, (estados, dtran, finais, simbolos) in self.afds.items():
+            self.afds[nome] = self.minimizar_afd(estados, dtran, finais, simbolos)
+        return self.afds
+
+    #########################################################################
     # 3.1) UNIÃO DE AUTÔMATOS VIA E-TRANSIÇÃO
     #########################################################################
     def unir_afds_com_epsilon(self):
@@ -274,13 +418,14 @@ class GeradorLexico:
         return self.afds
 
 
-analisador = GeradorLexico("arquivo.txt")
-analisador.arrumar_arquivo()
+if __name__ == "__main__":
+    analisador = GeradorLexico("arquivo.txt")
+    analisador.arrumar_arquivo()
+    analisador.gerar_afd()
+    analisador.minimizar_afds()
 
-analisador.gerar_afd()
+    dtran_afnd, finais_afnd, simbolos = analisador.unir_afds_com_epsilon()
 
-dtran_afnd, finais_afnd, simbolos = analisador.unir_afds_com_epsilon()
-
-print("Transições (AFND):", dtran_afnd)
-print("Finais:", finais_afnd)
-print("Alfabeto:", simbolos)
+    print("Transições (AFND):", dtran_afnd)
+    print("Finais:", finais_afnd)
+    print("Alfabeto:", simbolos)
