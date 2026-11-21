@@ -400,6 +400,64 @@ class GeradorLexico:
             
         return novo_dtran, novos_finais, simbolos_totais
 
+    #########################################################################
+    # 4.1) DETERMINIZAÇÃO DE AUTÔMATOS
+    #########################################################################
+    
+    def _epsilon_fecho(self, estados_iniciais, dtran_afnd, simbolo_eps='&'):
+        fecho = set(estados_iniciais)
+        fila = deque(estados_iniciais)
+
+        while fila:
+            atual = fila.popleft()
+            for dest in dtran_afnd.get(atual, {}).get(simbolo_eps, []):
+                if dest not in fecho:
+                    fecho.add(dest)
+                    fila.append(dest)
+
+        return sorted(fecho)
+
+    def determinizar_afnd(self, dtran_afnd, finais_afnd, simbolos_afnd, estado_inicial=0):
+        simbolos_afd = [s for s in simbolos_afnd if s != '&']
+
+        inicial = self._epsilon_fecho([estado_inicial], dtran_afnd)
+        estados_d = [inicial]
+        nao_marcados = deque([inicial])
+        dtran_d = []
+
+        while nao_marcados:
+            T = nao_marcados.popleft()
+            trans = {}
+
+            for sym in simbolos_afd:
+                alcancados_sym = []
+                for q in T:
+                    for dest in dtran_afnd.get(q, {}).get(sym, []):
+                        if dest not in alcancados_sym:
+                            alcancados_sym.append(dest)
+
+                if alcancados_sym:
+                    U = self._epsilon_fecho(alcancados_sym, dtran_afnd)
+                    if U not in estados_d:
+                        estados_d.append(U)
+                        nao_marcados.append(U)
+                    trans[sym] = estados_d.index(U)
+
+            dtran_d.append(trans)
+
+        finais_d = []
+        tokens_por_estado = {}
+
+        for idx, subconjunto in enumerate(estados_d):
+            tokens_encontrados = [
+                finais_afnd[q] for q in subconjunto if q in finais_afnd
+            ]
+            if tokens_encontrados:
+                finais_d.append(idx)
+                tokens_por_estado[idx] = tokens_encontrados[0]
+
+        # tokens_por_estado guarda o token correspondente a cada um dos estados finais do automato resultante
+        return estados_d, dtran_d, finais_d, simbolos_afd, tokens_por_estado
     
     ##########################
     # 0) UMA AFD POR EXPRESSÃO
